@@ -27,7 +27,7 @@ export default function UploadFiles() {
         setError(null);
 
         try {
-            const res = await fetch('https://xml-renamer-backend-production.up.railway.app/upload', {
+            const res = await fetch('xml-renamer-backend.vercel.app/upload', {
                 method: 'POST',
                 body: formData,
             });
