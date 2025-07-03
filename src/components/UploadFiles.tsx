@@ -27,7 +27,7 @@ export default function UploadFiles() {
         setError(null);
 
         try {
-            const res = await fetch('https://xml-renamer-backend.vercel.app/api/upload', {
+            const res = await fetch('https://xml-renamer-backend.onrender.com/upload', {
                 method: 'POST',
                 body: formData,
             });
