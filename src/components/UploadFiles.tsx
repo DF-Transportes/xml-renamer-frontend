@@ -30,6 +30,8 @@ export default function UploadFiles() {
             const res = await fetch('https://xml-renamer-backend.vercel.app/api/upload', {
                 method: 'POST',
                 body: formData,
+                credentials: 'omit',
+
             });
 
             if (!res.ok) throw new Error('Erro no upload');
