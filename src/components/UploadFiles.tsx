@@ -1,13 +1,27 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { CloudArrowUpIcon } from '@heroicons/react/24/outline';
 
 export default function UploadFiles() {
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedFiles(e.target.files);
+        const files = e.target.files;
+        if (files && files.length > 500) {
+            setSelectedFiles(null);
+            setError('Você pode enviar no máximo 500 arquivos por vez.');
+
+            // Limpa visualmente o input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+
+            return;
+        }
+
+        setSelectedFiles(files);
         setError(null);
     };
 
@@ -19,9 +33,7 @@ export default function UploadFiles() {
         }
 
         const formData = new FormData();
-        Array.from(selectedFiles).forEach((file) =>
-            formData.append('files', file)
-        );
+        Array.from(selectedFiles).forEach((file) => formData.append('files', file));
 
         setLoading(true);
         setError(null);
@@ -32,7 +44,10 @@ export default function UploadFiles() {
                 body: formData,
             });
 
-            if (!res.ok) throw new Error('Erro no upload');
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(errText || 'Erro no upload');
+            }
 
             const blob = await res.blob();
             const url = window.URL.createObjectURL(blob);
@@ -57,13 +72,13 @@ export default function UploadFiles() {
 
                 <form onSubmit={handleSubmit} className="mb-6 flex flex-col gap-5">
                     <input
+                        ref={fileInputRef}
                         type="file"
                         accept=".xml"
                         multiple
                         onChange={handleFileChange}
                         className="border border-gray-300 rounded px-4 py-3 cursor-pointer"
                     />
-
                     {selectedFiles && selectedFiles.length > 0 && (
                         <div className="flex items-center gap-3 bg-blue-50 border border-blue-300 rounded px-4 py-2 select-none">
                             <CloudArrowUpIcon className="h-7 w-7 text-blue-600" />
